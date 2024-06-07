@@ -1,0 +1,54 @@
+pipeline:
+  name: test_gh_nodejs-goof
+  identifier: test_gh_nodejsgoof
+  projectIdentifier: testal
+  orgIdentifier: TPMLabs
+  tags:
+    first: ""
+  properties:
+    ci:
+      codebase:
+        connectorRef: test_al
+        repoName: nodejs-goof
+        build: <+input>
+  stages:
+    - stage:
+        name: build
+        identifier: build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          platform:
+            os: MacOS
+            arch: Arm64
+          runtime:
+            type: Docker
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run_1
+                  identifier: Run_1
+                  spec:
+                    shell: Sh
+                    command: npm install
+              - step:
+                  type: Snyk
+                  name: Snyk_1
+                  identifier: Snyk_1
+                  spec:
+                    mode: orchestration
+                    config: default
+                    target:
+                      type: repository
+                      detection: auto
+                    advanced:
+                      log:
+                        level: debug
+                      fail_on_severity: high
+                      args:
+                        cli: "--all-projects --json"
+                    auth:
+                      access_token: 07d7e46c-5153-4704-9aba-5b7d2e5a6459
