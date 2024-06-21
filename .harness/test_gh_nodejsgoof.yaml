@@ -34,27 +34,10 @@ pipeline:
                   spec:
                     shell: Sh
                     command: npm install
-              - step:
-                  type: Snyk
-                  name: Snyk_1
-                  identifier: Snyk_1
-                  spec:
-                    mode: orchestration
-                    config: default
-                    target:
-                      type: repository
-                      detection: auto
-                    advanced:
-                      log:
-                        level: debug
-                      fail_on_severity: high
-                      args:
-                        cli: "--all-projects --json"
-                    imagePullPolicy: IfNotPresent
-                    auth:
-                      access_token: 07d7e46c-5153-4704-9aba-5b7d2e5a6459
         failureStrategies:
           - onFailure:
               errors: []
               action:
                 type: Ignore
+        when:
+          pipelineStatus: Success
