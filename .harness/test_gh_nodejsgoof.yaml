@@ -15,29 +15,6 @@ pipeline:
     - stage:
         name: build
         identifier: build
-        description: ""
-        type: CI
-        spec:
-          cloneCodebase: true
-          platform:
-            os: MacOS
-            arch: Arm64
-          runtime:
-            type: Docker
-            spec: {}
-          execution:
-            steps:
-              - step:
-                  type: Run
-                  name: install
-                  identifier: Run_1
-                  spec:
-                    shell: Sh
-                    command: npm install
-        failureStrategies:
-          - onFailure:
-              errors: []
-              action:
-                type: Ignore
-        when:
-          pipelineStatus: Success
+        template:
+          templateRef: owasp_snyk
+          versionLabel: test
