@@ -80,9 +80,11 @@ pipeline:
                           limits:
                             memory: 2G
                             cpu: 1000m
-          platform:
-            os: MacOS
-            arch: Arm64
-          runtime:
-            type: Docker
-            spec: {}
+          infrastructure:
+            type: KubernetesDirect
+            spec:
+              connectorRef: rancher_local
+              namespace: default
+              automountServiceAccountToken: true
+              nodeSelector: {}
+              os: Linux
