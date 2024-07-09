@@ -88,3 +88,5 @@ pipeline:
               automountServiceAccountToken: true
               nodeSelector: {}
               os: Linux
+        delegateSelectors:
+          - terraform-delegate
