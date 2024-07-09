@@ -19,14 +19,6 @@ pipeline:
         type: SecurityTests
         spec:
           cloneCodebase: true
-          infrastructure:
-            type: KubernetesDirect
-            spec:
-              connectorRef: rancher_local
-              namespace: default
-              automountServiceAccountToken: true
-              nodeSelector: {}
-              os: Linux
           sharedPaths:
             - /var/run
           execution:
@@ -88,3 +80,9 @@ pipeline:
                           limits:
                             memory: 2G
                             cpu: 1000m
+          platform:
+            os: MacOS
+            arch: Arm64
+          runtime:
+            type: Docker
+            spec: {}
