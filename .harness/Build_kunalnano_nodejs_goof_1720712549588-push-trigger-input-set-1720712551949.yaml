@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_kunalnano_nodejs_goof_1720712549588-push-trigger-input-set
+  identifier: Build_kunalnano_nodejs_goof_1720712549588pushtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_kunalnano_nodejs_goof_1720712549588
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
