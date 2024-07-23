@@ -73,3 +73,5 @@ pipeline:
               nodeSelector: {}
               os: Linux
         type: CI
+        delegateSelectors:
+          - helm-delegate
