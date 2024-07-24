@@ -24,7 +24,7 @@ pipeline:
                   name: install dependencies
                   spec:
                     connectorRef: account.harnessImage
-                    image: alsharma9/nodejs-goof
+                    image: alsharma9/snyk_node_js_goof_app:latest
                     shell: Sh
                     command: |-
                       npm install
@@ -36,7 +36,7 @@ pipeline:
                   name: test
                   spec:
                     connectorRef: account.harnessImage
-                    image: alsharma9/nodejs-goof
+                    image: alsharma9/snyk_node_js_goof_app:latest
                     shell: Sh
                     command: |-
                       npm run test
@@ -48,7 +48,7 @@ pipeline:
                   name: build
                   spec:
                     connectorRef: account.harnessImage
-                    image: alsharma9/nodejs-goof
+                    image: alsharma9/snyk_node_js_goof_app:latest
                     shell: Sh
                     command: npm run build
                   timeout: ""
