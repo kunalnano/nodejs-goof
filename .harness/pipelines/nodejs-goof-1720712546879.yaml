@@ -24,12 +24,11 @@ pipeline:
                   name: install dependencies
                   spec:
                     connectorRef: account.harnessImage
-                    image: alsharma9/snyk_node_js_goof_app:latest
+                    image: node:14
                     shell: Sh
                     command: |-
                       npm install
                       npm install -g @angular/cli
-                      npm install -g snyk@latest
                   timeout: ""
                   type: Run
               - step:
@@ -37,9 +36,10 @@ pipeline:
                   name: Snyk Auth and Test
                   spec:
                     connectorRef: account.harnessImage
-                    image: alsharma9/snyk_node_js_goof_app:latest
+                    image: node:14
                     shell: Sh
                     command: |-
+                      npm install -g snyk@latest
                       export SNYK_TOKEN=${SNYK_TOKEN}
                       snyk auth ${SNYK_TOKEN}
                       snyk test
@@ -51,7 +51,7 @@ pipeline:
                   name: build
                   spec:
                     connectorRef: account.harnessImage
-                    image: alsharma9/snyk_node_js_goof_app:latest
+                    image: node:14
                     shell: Sh
                     command: npm run build
                   timeout: ""
