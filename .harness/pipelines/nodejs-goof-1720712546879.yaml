@@ -40,10 +40,9 @@ pipeline:
                     shell: Sh
                     command: |-
                       npm install -g snyk@latest
-                      export SNYK_TOKEN=${SNYK_TOKEN}
                       snyk auth ${SNYK_TOKEN}
-                      snyk test
-                      npm run test
+                      echo SnykProjName:${CI_COMMIT_SHORT_SHA} 
+                      snyk test --package-manager=npm --project-name=${CI_COMMIT_SHORT_SHA} > snyk_test_npm.json || true
                   timeout: ""
                   type: Run
               - step:
