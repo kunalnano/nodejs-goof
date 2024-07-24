@@ -30,21 +30,20 @@ pipeline:
                       npm install
                       npm install -g @angular/cli
                       npm install -g snyk@latest
-
-                      export SNYK_TOKEN=${SNYK_TOKEN} 
-                      snyk auth ${SNYK_TOKEN}
                   timeout: ""
                   type: Run
               - step:
-                  identifier: test
-                  name: test
+                  identifier: snykAuthAndTest
+                  name: Snyk Auth and Test
                   spec:
                     connectorRef: account.harnessImage
                     image: alsharma9/snyk_node_js_goof_app:latest
                     shell: Sh
                     command: |-
+                      export SNYK_TOKEN=${SNYK_TOKEN}
+                      snyk auth ${SNYK_TOKEN}
+                      snyk test
                       npm run test
-                      npm install -g @angular/cli
                   timeout: ""
                   type: Run
               - step:
@@ -84,5 +83,5 @@ pipeline:
     - name: SNYK_TOKEN
       type: String
       description: Snyk Auth Token
-      required: false
+      required: true
       value: bf000d3f-29a1-455d-9f54-d2d93d6d112c
