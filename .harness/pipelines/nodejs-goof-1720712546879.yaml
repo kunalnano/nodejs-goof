@@ -25,11 +25,12 @@ pipeline:
                   type: Run
                   spec:
                     connectorRef: account.harnessImage
-                    image: node:14
+                    image: node:18
                     shell: Sh
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN_SECRET")>
                     command: |-
+                      npm install -g snyk@latest --unsafe-perm  # Install Snyk globally
                       snyk auth ${SNYK_TOKEN}  # Authenticate using the token
                       snyk test --package-manager=npm > snyk_test_npm.json || true
                   timeout: 20m
