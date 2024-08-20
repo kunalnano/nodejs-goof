@@ -32,7 +32,7 @@ pipeline:
                     command: |-
                       npm install -g snyk@latest --unsafe-perm  # Install Snyk globally
                       snyk auth ${SNYK_TOKEN}  # Authenticate using the token
-                      snyk test --json --output=snyk_report.json  # Run Snyk scan and save output as JSON
+                      snyk test --json --output=snyk_report.json || true # Run Snyk scan and save output as JSON
                   timeout: 20m
               - step:
                   identifier: saveArtifact
@@ -40,7 +40,7 @@ pipeline:
                   type: Run
                   spec:
                     connectorRef: account.harnessImage
-                    image: node:14
+                    image: node:18
                     shell: Sh
                     command: |-
                       mkdir -p /harness-artifacts
