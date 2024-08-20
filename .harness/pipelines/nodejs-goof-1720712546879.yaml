@@ -27,9 +27,10 @@ pipeline:
                     connectorRef: account.harnessImage
                     image: node:18
                     shell: Sh
+                    envVariables:
+                      SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN_SECRET")>
                     command: |-
-                      npm install -g snyk@latest --unsafe-perm
-                      snyk auth ${SNYK_TOKEN}
+                      snyk auth ${SNYK_TOKEN}  # Authenticate using the token
                       snyk test --package-manager=npm > snyk_test_npm.json || true
                   timeout: 20m
           infrastructure:
@@ -39,9 +40,9 @@ pipeline:
               namespace: harness-delegate-ng
               automountServiceAccountToken: true
               os: Linux
-  variables:
-    - name: SNYK_TOKEN
-      type: String
-      description: Snyk Auth Token
-      required: true
-      value: bf000d3f-29a1-455d-9f54-d2d93d6d112c
+        variables:
+          - name: SNYK_TOKEN_SECRET
+            type: String
+            description: ""
+            required: false
+            value: bf000d3f-29a1-455d-9f54-d2d93d6d112c
