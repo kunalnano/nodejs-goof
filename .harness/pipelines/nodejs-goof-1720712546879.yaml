@@ -50,7 +50,7 @@ pipeline:
                   name: build
                   spec:
                     connectorRef: account.harnessImage
-                    image: node:14
+                    image: node:18
                     shell: Sh
                     command: npm run build
                   timeout: ""
@@ -70,7 +70,7 @@ pipeline:
             type: KubernetesDirect
             spec:
               connectorRef: harnessk8srancherconnector
-              namespace: default
+              namespace: harness-delegate-ng
               automountServiceAccountToken: true
               nodeSelector: {}
               os: Linux
@@ -78,6 +78,8 @@ pipeline:
         delegateSelectors:
           - helm-delegate
         description: ""
+        when:
+          pipelineStatus: Success
   variables:
     - name: SNYK_TOKEN
       type: String
