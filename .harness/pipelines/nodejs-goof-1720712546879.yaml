@@ -46,3 +46,9 @@ pipeline:
             description: ""
             required: false
             value: bf000d3f-29a1-455d-9f54-d2d93d6d112c
+  variables:
+    - name: SNYK_TOKEN_SECRET
+      type: String
+      description: ""
+      required: false
+      value: bf000d3f-29a1-455d-9f54-d2d93d6d112c
