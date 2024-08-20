@@ -31,7 +31,6 @@ pipeline:
                       npm install -g snyk@latest --unsafe-perm  # Install Snyk globally
                       snyk auth ${SNYK_TOKEN}  # Authenticate using the token
                       snyk test --json --output=snyk_report.json || true  # Run Snyk scan and save output as JSON
-                      ls -la snyk_report.json  # List the file to confirm it exists
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN_SECRET")>
                   timeout: 20m
