@@ -1,85 +1,44 @@
 pipeline:
   identifier: Build_kunalnano_nodejs_goof_1720712549588
-  name: Build nodejs-goof
+  name: Snyk Scan Pipeline
   orgIdentifier: default
   projectIdentifier: default_project
   properties:
     ci:
       codebase:
-        build: <+input>
         connectorRef: account.Github_OAuth_1720712151481
         repoName: kunalnano/nodejs-goof
+        branch: main
+        build: <+input>
   stages:
     - stage:
-        identifier: build1
-        name: build
+        identifier: snyk_scan_stage
+        name: Snyk Scan
+        type: CI
         spec:
-          caching:
-            enabled: true
           cloneCodebase: true
           execution:
             steps:
               - step:
-                  identifier: installdependencies
-                  name: install dependencies
-                  spec:
-                    connectorRef: account.harnessImage
-                    image: node:14
-                    shell: Sh
-                    command: |-
-                      npm install
-                      npm install -g @angular/cli
-                  timeout: ""
-                  type: Run
-              - step:
                   identifier: snykAuthAndTest
                   name: Snyk Auth and Test
-                  spec:
-                    connectorRef: account.harnessImage
-                    image: node:14
-                    shell: Sh
-                    command: |-
-                      npm install -g snyk@latest
-                      snyk auth ${SNYK_TOKEN}
-                      echo SnykProjName:${CI_COMMIT_SHORT_SHA} 
-                      snyk test --package-manager=npm --project-name=${CI_COMMIT_SHORT_SHA} > snyk_test_npm.json || true
-                  timeout: ""
                   type: Run
-              - step:
-                  identifier: build
-                  name: build
                   spec:
                     connectorRef: account.harnessImage
                     image: node:18
                     shell: Sh
-                    command: npm run build
-                  timeout: ""
-                  type: Run
-              - step:
-                  identifier: dockerbuild
-                  name: docker_build
-                  spec:
-                    caching: true
-                    connectorRef: <+input>
-                    repo: hello/world
-                    tags:
-                      - latest
-                  timeout: ""
-                  type: BuildAndPushDockerRegistry
+                    command: |-
+                      npm install -g snyk@latest --unsafe-perm
+                      snyk auth ${SNYK_TOKEN}
+                      snyk test --package-manager=npm > snyk_test_npm.json || true
+                  timeout: 20m
           infrastructure:
             type: KubernetesDirect
             spec:
               connectorRef: harnessk8srancherconnector
               namespace: harness-delegate-ng
               automountServiceAccountToken: true
-              nodeSelector: {}
               os: Linux
-        type: CI
-        delegateSelectors:
-          - helm-delegate
-        description: ""
-        when:
-          pipelineStatus: Success
   variables:
     - name: SNYK_TOKEN
       type: String
