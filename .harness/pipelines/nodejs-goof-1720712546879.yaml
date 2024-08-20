@@ -25,14 +25,15 @@ pipeline:
                   type: Run
                   spec:
                     connectorRef: account.harnessImage
-                    image: node:18
+                    image: node:14
                     shell: Sh
                     envVariables:
                       SNYK_TOKEN: <+secrets.getValue("SNYK_TOKEN_SECRET")>
                     command: |-
                       npm install -g snyk@latest --unsafe-perm  # Install Snyk globally
                       snyk auth ${SNYK_TOKEN}  # Authenticate using the token
-                      snyk test --json --output=snyk_report.json || true # Run Snyk scan and save output as JSON
+                      snyk test --json --output=snyk_report.json || true  # Run Snyk scan and save output as JSON
+                      ls -la snyk_report.json  # List the file to confirm it exists
                   timeout: 20m
               - step:
                   identifier: saveArtifact
@@ -40,11 +41,16 @@ pipeline:
                   type: Run
                   spec:
                     connectorRef: account.harnessImage
-                    image: node:18
+                    image: node:14
                     shell: Sh
                     command: |-
-                      mkdir -p /harness-artifacts
-                      mv snyk_report.json /harness-artifacts/snyk_report.json
+                      if [ -f snyk_report.json ]; then
+                        mkdir -p /harness-artifacts
+                        mv snyk_report.json /harness-artifacts/snyk_report.json
+                      else
+                        echo "Snyk report not found; skipping artifact upload"
+                        exit 1  # Fail the step if the report isn't found
+                      fi
                   timeout: 10m
           infrastructure:
             type: KubernetesDirect
