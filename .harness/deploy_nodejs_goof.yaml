@@ -96,7 +96,7 @@ pipeline:
                       timeout: 10m
             tags: {}
     - stage:
-        name: roll back
+        name: deploy
         identifier: roll_back
         description: ""
         type: Deployment
