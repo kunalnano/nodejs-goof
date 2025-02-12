@@ -11,73 +11,136 @@ pipeline:
         repoName: nodejs-goof
         build: <+input>
   stages:
+    - parallel:
+        - stage:
+            name: build_artifact
+            identifier: build_artifact
+            description: ""
+            type: CI
+            spec:
+              cloneCodebase: true
+              caching:
+                enabled: true
+              buildIntelligence:
+                enabled: true
+              platform:
+                os: Linux
+                arch: Amd64
+              runtime:
+                type: Cloud
+                spec: {}
+              execution:
+                steps:
+                  - step:
+                      type: GitClone
+                      name: get_nodejs_goof
+                      identifier: get_nodejs_goof
+                      spec:
+                        connectorRef: account.GHActions
+                        repoName: nodejs-goof
+                        build:
+                          type: branch
+                          spec:
+                            branch: master
+                  - step:
+                      type: Run
+                      name: build
+                      identifier: build
+                      spec:
+                        shell: Sh
+                        command: |-
+                          npm install
+                          npm run build
+                  - step:
+                      type: BuildAndPushDockerRegistry
+                      name: push_docker
+                      identifier: push_docker
+                      spec:
+                        connectorRef: testal
+                        repo: alsharma9/nodejs-goof
+                        tags:
+                          - latest
+                        caching: true
+                  - step:
+                      type: Snyk
+                      name: Snyk_1
+                      identifier: Snyk_1
+                      spec:
+                        mode: orchestration
+                        config: oss
+                        target:
+                          type: repository
+                          detection: auto
+                        advanced:
+                          log:
+                            level: info
+                        privileged: true
+                        auth:
+                          access_token: <+input>
+                        sbom:
+                          format: spdx-json
+        - stage:
+            name: custom
+            identifier: custom
+            description: ""
+            type: Custom
+            spec:
+              execution:
+                steps:
+                  - step:
+                      type: Barrier
+                      name: Barrier_1
+                      identifier: Barrier_1
+                      spec:
+                        barrierRef: <+input>
+                      timeout: 10m
+            tags: {}
     - stage:
-        name: build_artifact
-        identifier: build_artifact
+        name: roll back
+        identifier: roll_back
         description: ""
-        type: CI
+        type: Deployment
         spec:
-          cloneCodebase: true
-          caching:
-            enabled: true
-          buildIntelligence:
-            enabled: true
-          platform:
-            os: Linux
-            arch: Amd64
-          runtime:
-            type: Cloud
-            spec: {}
+          deploymentType: Kubernetes
+          service:
+            serviceRef: harnessguestbook
+          environment:
+            environmentRef: al_env
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: al_infra
           execution:
             steps:
               - step:
-                  type: GitClone
-                  name: get_nodejs_goof
-                  identifier: get_nodejs_goof
+                  name: Rollout Deployment
+                  identifier: rolloutDeployment
+                  type: K8sRollingDeploy
+                  timeout: 10m
                   spec:
-                    connectorRef: account.GHActions
-                    repoName: nodejs-goof
-                    build:
-                      type: branch
-                      spec:
-                        branch: master
+                    skipDryRun: false
+                    pruningEnabled: false
               - step:
-                  type: Run
-                  name: build
-                  identifier: build
+                  type: K8sRollingRollback
+                  name: K8sRollingRollback_1
+                  identifier: K8sRollingRollback_1
                   spec:
-                    shell: Sh
-                    command: |-
-                      npm install
-                      npm run build
+                    pruningEnabled: false
+                  timeout: 10m
+            rollbackSteps:
               - step:
-                  type: BuildAndPushDockerRegistry
-                  name: push_docker
-                  identifier: push_docker
+                  name: Rollback Rollout Deployment
+                  identifier: rollbackRolloutDeployment
+                  type: K8sRollingRollback
+                  timeout: 10m
                   spec:
-                    connectorRef: testal
-                    repo: alsharma9/nodejs-goof
-                    tags:
-                      - latest
-                    caching: true
-              - step:
-                  type: Snyk
-                  name: Snyk_1
-                  identifier: Snyk_1
-                  spec:
-                    mode: orchestration
-                    config: oss
-                    target:
-                      type: repository
-                      detection: auto
-                    advanced:
-                      log:
-                        level: info
-                    privileged: true
-                    auth:
-                      access_token: <+input>
-                    sbom:
-                      format: spdx-json
+                    pruningEnabled: false
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
   variables:
     - name: snyk_token
       type: String
