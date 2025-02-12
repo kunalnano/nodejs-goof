@@ -1,0 +1,86 @@
+pipeline:
+  name: deploy_nodejs_goof
+  identifier: deploy_nodejs_goof
+  projectIdentifier: testal
+  orgIdentifier: TPMLabs
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: account.GHActions
+        repoName: nodejs-goof
+        build: <+input>
+  stages:
+    - stage:
+        name: build_artifact
+        identifier: build_artifact
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: GitClone
+                  name: get_nodejs_goof
+                  identifier: get_nodejs_goof
+                  spec:
+                    connectorRef: account.GHActions
+                    repoName: nodejs-goof
+                    build:
+                      type: branch
+                      spec:
+                        branch: master
+              - step:
+                  type: Run
+                  name: build
+                  identifier: build
+                  spec:
+                    shell: Sh
+                    command: |-
+                      npm install
+                      npm run build
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: push_docker
+                  identifier: push_docker
+                  spec:
+                    connectorRef: testal
+                    repo: alsharma9/nodejs-goof
+                    tags:
+                      - latest
+                    caching: true
+              - step:
+                  type: Snyk
+                  name: Snyk_1
+                  identifier: Snyk_1
+                  spec:
+                    mode: orchestration
+                    config: oss
+                    target:
+                      type: repository
+                      detection: auto
+                    advanced:
+                      log:
+                        level: info
+                    privileged: true
+                    auth:
+                      access_token: <+input>
+                    sbom:
+                      format: spdx-json
+  variables:
+    - name: snyk_token
+      type: String
+      description: ""
+      required: true
+      value: 07d7e46c-5153-4704-9aba-5b7d2e5a6459
