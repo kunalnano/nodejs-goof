@@ -75,7 +75,7 @@ pipeline:
                           log:
                             level: info
                           args:
-                            cli: "--json > scan.json"
+                            cli: "--container"
                         privileged: true
                         auth:
                           access_token: ${{ secrets.get("snyk_token_secret") }}
