@@ -63,20 +63,22 @@ pipeline:
                         caching: true
                   - step:
                       type: Snyk
-                      name: Snyk_1
+                      name: snyk_scan
                       identifier: Snyk_1
                       spec:
                         mode: orchestration
-                        config: oss
+                        config: container
                         target:
-                          type: repository
+                          type: container
                           detection: auto
                         advanced:
                           log:
                             level: info
-                          args:
-                            cli: "--container"
                         privileged: true
+                        image:
+                          type: docker_v2
+                          tag: latest
+                          name: alsharma9/nodejs-goof
                         auth:
                           access_token: ${{ secrets.get("snyk_token_secret") }}
                         sbom:
