@@ -70,15 +70,19 @@ pipeline:
                         config: oss
                         target:
                           type: repository
+                          workspace: /harness/path/to/artifacts/snyk
                           detection: auto
                         advanced:
                           log:
                             level: info
+                          args:
+                            cli: "--json > scan.json"
                         privileged: true
                         auth:
                           access_token: <+input>
                         sbom:
-                          format: spdx-json
+                          generate: true
+                          format: cyclonedx-json
         - stage:
             name: custom
             identifier: custom
