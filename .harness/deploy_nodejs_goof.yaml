@@ -79,7 +79,7 @@ pipeline:
                             cli: "--json > scan.json"
                         privileged: true
                         auth:
-                          access_token: <+input>
+                          access_token: ${{ secrets.get("snyk_token_secret") }}
                         sbom:
                           generate: true
                           format: cyclonedx-json
