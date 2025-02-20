@@ -4,151 +4,89 @@ pipeline:
   projectIdentifier: testal
   orgIdentifier: TPMLabs
   tags: {}
-  properties:
-    ci:
-      codebase:
-        connectorRef: account.GHActions
-        repoName: nodejs-goof
-        build: <+input>
   stages:
-    - parallel:
-        - stage:
-            name: build_artifact
-            identifier: build_artifact
-            description: ""
-            type: CI
-            spec:
-              cloneCodebase: true
-              caching:
-                enabled: true
-              buildIntelligence:
-                enabled: true
-              platform:
-                os: Linux
-                arch: Amd64
-              runtime:
-                type: Cloud
-                spec: {}
-              execution:
-                steps:
-                  - step:
-                      type: GitClone
-                      name: get_nodejs_goof
-                      identifier: get_nodejs_goof
-                      spec:
-                        connectorRef: account.GHActions
-                        repoName: nodejs-goof
-                        build:
-                          type: branch
-                          spec:
-                            branch: master
-                  - step:
-                      type: Run
-                      name: build
-                      identifier: build
-                      spec:
-                        shell: Sh
-                        command: |-
-                          npm install
-                          npm run build
-                  - step:
-                      type: BuildAndPushDockerRegistry
-                      name: push_docker
-                      identifier: push_docker
-                      spec:
-                        connectorRef: testal
-                        repo: alsharma9/nodejs-goof
-                        tags:
-                          - latest
-                        caching: true
-                  - step:
-                      type: Snyk
-                      name: snyk_scan
-                      identifier: Snyk_1
-                      spec:
-                        mode: orchestration
-                        config: container
-                        target:
-                          type: container
-                          detection: auto
-                        advanced:
-                          log:
-                            level: info
-                        privileged: true
-                        image:
-                          type: docker_v2
-                          tag: latest
-                          name: alsharma9/nodejs-goof
-                        auth:
-                          access_token: ${{ secrets.get("snyk_token_secret") }}
-                        sbom:
-                          generate: true
-                          format: cyclonedx-json
-        - stage:
-            name: custom
-            identifier: custom
-            description: ""
-            type: Custom
-            spec:
-              execution:
-                steps:
-                  - step:
-                      type: Barrier
-                      name: Barrier_1
-                      identifier: Barrier_1
-                      spec:
-                        barrierRef: <+input>
-                      timeout: 10m
-            tags: {}
     - stage:
-        name: deploy
-        identifier: roll_back
+        name: build_artifact
+        identifier: build_artifact
         description: ""
-        type: Deployment
+        type: CI
         spec:
-          deploymentType: Kubernetes
-          service:
-            serviceRef: harnessguestbook
-          environment:
-            environmentRef: al_env
-            deployToAll: false
-            infrastructureDefinitions:
-              - identifier: al_infra
+          cloneCodebase: true
+          caching:
+            enabled: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
           execution:
             steps:
               - step:
-                  name: Rollout Deployment
-                  identifier: rolloutDeployment
-                  type: K8sRollingDeploy
-                  timeout: 10m
+                  type: GitClone
+                  name: get_nodejs_goof
+                  identifier: get_nodejs_goof
                   spec:
-                    skipDryRun: false
-                    pruningEnabled: false
+                    connectorRef: account.GHActions
+                    repoName: nodejs-goof
+                    build:
+                      type: branch
+                      spec:
+                        branch: master
               - step:
-                  type: K8sRollingRollback
-                  name: K8sRollingRollback_1
-                  identifier: K8sRollingRollback_1
+                  type: Run
+                  name: build
+                  identifier: build
                   spec:
-                    pruningEnabled: false
-                  timeout: 10m
-            rollbackSteps:
+                    shell: Sh
+                    command: |-
+                      npm install
+                      npm run build
               - step:
-                  name: Rollback Rollout Deployment
-                  identifier: rollbackRolloutDeployment
-                  type: K8sRollingRollback
-                  timeout: 10m
+                  type: BuildAndPushDockerRegistry
+                  name: push_docker
+                  identifier: push_docker
                   spec:
-                    pruningEnabled: false
-        tags: {}
-        failureStrategies:
-          - onFailure:
-              errors:
-                - AllErrors
-              action:
-                type: StageRollback
+                    connectorRef: testal
+                    repo: alsharma9/nodejs-goof
+                    tags:
+                      - latest
+                    caching: true
+              - step:
+                  type: Snyk
+                  name: snyk_scan
+                  identifier: Snyk_1
+                  spec:
+                    mode: orchestration
+                    config: container
+                    target:
+                      type: container
+                      detection: auto
+                    advanced:
+                      log:
+                        level: info
+                    privileged: true
+                    image:
+                      type: docker_v2
+                      tag: latest
+                      name: alsharma9/nodejs-goof
+                    auth:
+                      access_token: ${{ secrets.get("snyk_token_secret") }}
+                    sbom:
+                      generate: true
+                      format: cyclonedx-json
   variables:
     - name: snyk_token
       type: String
       description: ""
       required: true
       value: 07d7e46c-5153-4704-9aba-5b7d2e5a6459
+  properties:
+    ci:
+      codebase:
+        connectorRef: test_al
+        repoName: nodejs-goof
+        build: <+input>
+        sparseCheckout: []
