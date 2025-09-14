@@ -1,0 +1,46 @@
+resources:
+  - kind: file
+    selector:
+      query: 'true'
+      files:
+        - path: '**/sbom.json'
+        - path: '**/sbom.xml'
+        - path: '**/*sbom*.json'
+    port:
+      itemsToParse: '.components[]'
+      entity:
+        mappings:
+          blueprint: '"sbom_component_blueprint"'
+          identifier: '.["bom-ref"] // .name | gsub("[^a-zA-Z0-9@/:-]"; "-")'
+          title: '.name'
+          properties:
+            name: '.name'
+            version: '.version'
+            type: '.type // "library"'
+            package_url: '.purl'
+            external_references: '.externalReferences // []'
+            licenses: '.licenses // []'
+
+  - kind: file
+    selector:
+      query: 'true'
+      files:
+        - path: '**/sbom.json'
+        - path: '**/sbom.xml'
+    port:
+      itemsToParse: '.vulnerabilities[]'
+      entity:
+        mappings:
+          blueprint: '"sbom_vulnerability_blueprint"'
+          identifier: '.id'
+          title: '.id'
+          properties:
+            description: '.description'
+            reference: '.["bom-ref"]'
+            recommendation: '.recommendation'
+            source: '.source.name // "Unknown"'
+            published: '.published'
+            state: '.analysis.state // "in_triage"'
+            ratings: '.ratings'
+          relations:
+            components: '.affects[].ref'
